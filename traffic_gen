@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# NOTE:
+# - you need the tool jq to run the script, how to install it: https://github.com/stedolan/jq/wiki/Installation
+# - the script takes one input for server prefix: e.g. https://postman-echo.com, if not provided, it will use a default value
+# - the script also reads input from a request log file: request.log, assuming the last column of each line is the request body in JSON
+
+# check to see if jq is available
+if ! [ -x "$(command -v jq)" ]; then
+    echo "Error: jq not found, please install it first: https://github.com/stedolan/jq/wiki/Installation"
+    exit 1
+fi
+
+# check arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 [server_url] [request_log]"
+    echo "Example: $0 https://postman-echo.com/post ./request.log"
+    exit 1
+fi
+
+SERVER_URL=$1
+if [ -z "$SERVER_URL" ]; then
+    SERVER_URL="https://postman-echo.com/post"
+    echo "server_url is empty, use default value: $SERVER_URL"
+fi
+
+REQ_LOG=$2
+if [ -z "$REQ_LOG" ]; then
+    REQ_LOG="./request.log"
+    echo "request_log is empty, use default value: $REQ_LOG"
+fi
+
+while read -r BODY
+do
+  jq --arg BODY "$BODY" --arg SERVER_URL "$SERVER_URL" -cnCM '{method: "POST", url: $SERVER_URL, body: $BODY | @base64}'
+done < <(awk '$NF ~ /{.*}/ {print $NF}' $REQ_LOG)
