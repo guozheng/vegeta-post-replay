@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
 # please adjust the rate and duration
+if ! [ -x "$(command -v vegeta)" ]; then
+    echo "Error: vegeta not found, please install it first: https://github.com/tsenart/vegeta"
+    exit 1
+fi
+
+if ! [ -x "$(command -v jq)" ]; then
+    echo "Error: jq not found, please install it first: https://github.com/stedolan/jq/wiki/Installation"
+    exit 1
+fi
 
 ./traffic_gen https://postman-echo.com/post ./request.log | vegeta attack -header "Content-Type: application/json" -keepalive -rate=1/s -duration=10s -lazy -format=json | tee results.bin | vegeta report
