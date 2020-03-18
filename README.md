@@ -81,3 +81,6 @@ Bytes Out     [total, mean]              94, 15.67
 Success       [ratio]                    66.67%
 Status Codes  [code:count]               0:2  200:4 
 ```
+
+## Final Words
+Lastly, if the vegeta script cannot satisfy your needs, for example, you need to replay POST requests with different URLs and different bodies. You always have the option to use vegata go library and build your own client application.
